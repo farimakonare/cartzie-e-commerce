@@ -1,0 +1,118 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  user_id       Int     @id @default(autoincrement())
+  user_name     String
+  user_password String
+  user_email    String  @unique
+  user_address  String?
+  role          String  @default("customer")
+
+  orders   Order[]
+  payments Payment[]
+  reviews  Review[]
+  cart     Cart?
+}
+
+model Product {
+  product_id     Int        @id @default(autoincrement())
+  name           String
+  description    String?
+  price          Float
+  stock_quantity Int
+
+  category_id Int
+  category    Category  @relation(fields: [category_id], references: [category_id])
+  orderItems  OrderItem[]
+  reviews     Review[]
+  cartItems   CartItem[]
+}
+
+model Category {
+  category_id Int       @id @default(autoincrement())
+  name        String
+
+  products Product[]
+}
+
+model Order {
+  order_id     Int        @id @default(autoincrement())
+  user_id      Int
+  order_date   DateTime
+  total_amount Float
+  status       String     @default("pending")
+
+  user       User       @relation(fields: [user_id], references: [user_id])
+  orderItems OrderItem[]
+  shipment   Shipment?
+  payment    Payment?
+}
+
+model OrderItem {
+  order_item_id Int     @id @default(autoincrement())
+  order_id      Int
+  product_id    Int
+  quantity      Int
+  price         Float
+
+  order   Order   @relation(fields: [order_id], references: [order_id])
+  product Product @relation(fields: [product_id], references: [product_id])
+}
+
+model Shipment {
+  shipment_id   Int      @id @default(autoincrement())
+  order_id      Int      @unique
+  shipment_date DateTime
+  status        String
+
+  order Order @relation(fields: [order_id], references: [order_id])
+}
+
+model Payment {
+  payment_id     Int      @id @default(autoincrement())
+  user_id        Int
+  order_id       Int      @unique
+  payment_date   DateTime
+  payment_method String
+  payment_status String
+  total_amount   Float
+
+  user  User  @relation(fields: [user_id], references: [user_id])
+  order Order @relation(fields: [order_id], references: [order_id])
+}
+
+model Review {
+  review_id  Int     @id @default(autoincrement())
+  user_id    Int
+  product_id Int
+  rating     Int
+  comment    String?
+
+  user    User    @relation(fields: [user_id], references: [user_id])
+  product Product @relation(fields: [product_id], references: [product_id])
+}
+
+model Cart {
+  cart_id Int @id @default(autoincrement())
+  user_id Int @unique
+
+  user      User      @relation(fields: [user_id], references: [user_id])
+  cartItems CartItem[]
+}
+
+model CartItem {
+  cart_item_id Int  @id @default(autoincrement())
+  cart_id      Int
+  product_id   Int
+  quantity     Int
+
+  cart    Cart    @relation(fields: [cart_id], references: [cart_id])
+  product Product @relation(fields: [product_id], references: [product_id])
+}
