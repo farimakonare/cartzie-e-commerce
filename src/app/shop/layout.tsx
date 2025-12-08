@@ -4,11 +4,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ShoppingCart, User, Search, Home, LogOut, Package } from 'lucide-react';
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect, FormEvent, Suspense } from 'react';
 import { useNotification } from '@/components/NotificationProvider';
 import { Shopper, StoredCartItem } from '@/types/models';
 
-export default function ShopLayout({ children }: { children: React.ReactNode }) {
+function ShopLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -304,5 +304,13 @@ export default function ShopLayout({ children }: { children: React.ReactNode }) 
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function ShopLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-gray-600">Loading...</div>}>
+      <ShopLayoutInner>{children}</ShopLayoutInner>
+    </Suspense>
   );
 }
