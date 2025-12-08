@@ -67,11 +67,17 @@ export default function AdminLoginPage() {
     <div className="min-h-screen bg-gradient-to-b from-sand-50 via-brand-50 to-leaf-50 flex items-center justify-center px-4 py-8">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          {/* <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl mb-4 shadow">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl mb-4 shadow">
             <div className="relative h-12 w-12">
-              <Image src="/panaya-logo.jpeg" alt="Panaya" fill className="rounded-xl object-cover" priority />
+              <Image
+                src="/panaya-logo.jpeg"
+                alt="Panaya"
+                fill
+                className="rounded-xl object-cover"
+                priority
+              />
             </div>
-          </div> */}
+          </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Welcome Back
           </h1>

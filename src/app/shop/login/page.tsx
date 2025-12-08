@@ -122,11 +122,17 @@ export default function LoginPage() {
       <div className="max-w-md w-full">
         {/* Logo */}
         <div className="text-center mb-8">
-          {/* <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl mb-4 shadow">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl mb-4 shadow">
             <div className="relative h-12 w-12">
-              <Image src="/panaya-logo.jpeg" alt="Panaya" fill className="rounded-xl object-cover" priority />
+              <Image
+                src="/panaya-logo.jpeg"
+                alt="Panaya"
+                fill
+                className="rounded-xl object-cover"
+                priority
+              />
             </div>
-          </div> */}
+          </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {isLogin ? 'Welcome Back' : 'Create Account'}
           </h1>
