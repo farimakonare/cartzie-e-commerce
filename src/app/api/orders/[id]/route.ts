@@ -1,15 +1,16 @@
 // api/orders/[id]/route.ts
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-type Params = { params: { id: string } };
+type RouteContext = { params: Promise<{ id: string }> };
 
 // Get single order with all relationships
-export async function GET(_req: Request, { params }: Params) {
+export async function GET(_req: NextRequest, context: RouteContext) {
   try {
+    const { id } = await context.params;
     const order = await prisma.order.findUnique({
-      where: { order_id: Number(params.id) },
+      where: { order_id: Number(id) },
       include: {
         user: true,
         orderItems: {
@@ -46,12 +47,13 @@ export async function GET(_req: Request, { params }: Params) {
 }
 
 // Update order (mainly for status updates)
-export async function PUT(req: Request, { params }: Params) {
+export async function PUT(req: NextRequest, context: RouteContext) {
   try {
+    const { id } = await context.params;
     const data = await req.json();
     
     const updated = await prisma.order.update({
-      where: { order_id: Number(params.id) },
+      where: { order_id: Number(id) },
       data,
     });
 
@@ -66,24 +68,26 @@ export async function PUT(req: Request, { params }: Params) {
 }
 
 // Delete order (with cascading deletes)
-export async function DELETE(_req: Request, { params }: Params) {
+export async function DELETE(_req: NextRequest, context: RouteContext) {
   try {
+    const { id } = await context.params;
+    const orderId = Number(id);
     // Delete related records first if not using cascade
     await prisma.orderItem.deleteMany({
-      where: { order_id: Number(params.id) },
+      where: { order_id: orderId },
     });
 
     await prisma.shipment.deleteMany({
-      where: { order_id: Number(params.id) },
+      where: { order_id: orderId },
     });
 
     await prisma.payment.deleteMany({
-      where: { order_id: Number(params.id) },
+      where: { order_id: orderId },
     });
 
     // Delete the order
     await prisma.order.delete({
-      where: { order_id: Number(params.id) },
+      where: { order_id: orderId },
     });
 
     return NextResponse.json({ message: "Order deleted successfully" });

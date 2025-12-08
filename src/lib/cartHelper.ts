@@ -13,7 +13,7 @@ export async function addToCart(userId: number, productId: number, quantity: num
     // Get or create cart for user
     const cartsRes = await fetch('/api/cart');
     const carts: CartSummary[] = await cartsRes.json();
-    let userCart = carts.find((c) => c.user_id === userId);
+    let userCart: CartSummary | null = carts.find((c) => c.user_id === userId) ?? null;
 
     if (!userCart) {
       // Create cart if doesn't exist
@@ -23,6 +23,10 @@ export async function addToCart(userId: number, productId: number, quantity: num
         body: JSON.stringify({ user_id: userId }),
       });
       userCart = await createRes.json();
+    }
+
+    if (!userCart) {
+      return { success: false, error: new Error('Unable to create cart for user') };
     }
 
     // Check if product already in cart
