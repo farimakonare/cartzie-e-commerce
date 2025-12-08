@@ -1,39 +1,57 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// Fetch all users
+// Get all users with computed stats for admin dashboard
 export async function GET() {
-  const users = await prisma.user.findMany({
-    include: {
-      orders: true,
-      payments: true,
-      reviews: true,
-      cart: { include: { cartItems: true } },
-    },
-  });
-  return NextResponse.json(users);
+  try {
+    const users = await prisma.user.findMany({
+      include: {
+        orders: {
+          select: {
+            total_amount: true,
+          },
+        },
+        _count: {
+          select: {
+            orders: true,
+          },
+        },
+      },
+    });
+
+    // Transform data to include computed fields
+    const usersWithStats = users.map(user => ({
+      user_id: user.user_id,
+      user_name: user.user_name,
+      user_email: user.user_email,
+      user_address: user.user_address,
+      user_phone: user.user_phone,
+      role: user.role,
+      orders: user._count.orders,
+      totalSpent: user.orders.reduce((sum, order) => sum + order.total_amount, 0),
+    }));
+
+    return NextResponse.json(usersWithStats);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch users' },
+      { status: 500 }
+    );
+  }
 }
 
 // Create a new user
 export async function POST(req: Request) {
-  const data = await req.json();
-  const user = await prisma.user.create({ data });
-  return NextResponse.json(user, { status: 201 });
-}
-
-// Update user info
-export async function PUT(req: Request) {
-  const { user_id, ...data } = await req.json();
-  const updated = await prisma.user.update({
-    where: { user_id },
-    data,
-  });
-  return NextResponse.json(updated);
-}
-
-// Remove a user by ID
-export async function DELETE(req: Request) {
-  const { user_id } = await req.json();
-  await prisma.user.delete({ where: { user_id } });
-  return NextResponse.json({ message: "User deleted" });
+  try {
+    const data = await req.json();
+    const user = await prisma.user.create({ data });
+    return NextResponse.json(user, { status: 201 });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    return NextResponse.json(
+      { error: 'Failed to create user' },
+      { status: 500 }
+    );
+  }
 }

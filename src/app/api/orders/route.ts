@@ -1,13 +1,26 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// Get all orders with relationships
-export async function GET() {
+// Get orders with optional user filtering
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const userId = searchParams.get("userId");
+
+  const where = userId ? { user_id: Number(userId) } : undefined;
+
   const orders = await prisma.order.findMany({
+    where,
+    orderBy: { order_date: "desc" },
     include: {
       user: true,
       orderItems: { include: { product: true } },
-      shipment: true,
+      shipment: {
+        include: {
+          events: {
+            orderBy: { created_at: "asc" },
+          },
+        },
+      },
       payment: true,
     },
   });

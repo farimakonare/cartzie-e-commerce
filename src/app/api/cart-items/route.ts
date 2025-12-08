@@ -11,5 +11,5 @@ export async function GET() {
 export async function POST(req: Request) {
   const data = await req.json();
   const item = await prisma.cartItem.create({ data });
-  return NextResponse.json(item);
+  return NextResponse.json(item, { status: 201 });
 }
