@@ -1,11 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-type Params = { params: { id: string } };
+type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(_req: Request, { params }: Params) {
+export async function GET(_req: NextRequest, context: RouteContext) {
+  const { id } = await context.params;
   const shipment = await prisma.shipment.findUnique({
-    where: { shipment_id: Number(params.id) },
+    where: { shipment_id: Number(id) },
     include: {
       order: {
         include: {
@@ -21,16 +22,18 @@ export async function GET(_req: Request, { params }: Params) {
   return NextResponse.json(shipment);
 }
 
-export async function PUT(req: Request, { params }: Params) {
+export async function PUT(req: NextRequest, context: RouteContext) {
+  const { id } = await context.params;
   const data = await req.json();
   const updated = await prisma.shipment.update({
-    where: { shipment_id: Number(params.id) },
+    where: { shipment_id: Number(id) },
     data,
   });
   return NextResponse.json(updated);
 }
 
-export async function DELETE(_req: Request, { params }: Params) {
-  await prisma.shipment.delete({ where: { shipment_id: Number(params.id) } });
+export async function DELETE(_req: NextRequest, context: RouteContext) {
+  const { id } = await context.params;
+  await prisma.shipment.delete({ where: { shipment_id: Number(id) } });
   return NextResponse.json({ message: "Shipment deleted" });
 }

@@ -1,14 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { deleteProductCascade } from "@/lib/productCleanup";
 
-type Params = { params: { id: string } };
+type RouteContext = { params: Promise<{ id: string }> };
 
 // Get one category
-export async function GET(_req: Request, { params }: Params) {
+export async function GET(_req: NextRequest, context: RouteContext) {
   try {
+    const { id } = await context.params;
     const category = await prisma.category.findUnique({
-      where: { category_id: Number(params.id) },
+      where: { category_id: Number(id) },
       include: {
         products: true,
         _count: {
@@ -32,11 +33,12 @@ export async function GET(_req: Request, { params }: Params) {
 }
 
 // Update category
-export async function PUT(req: Request, { params }: Params) {
+export async function PUT(req: NextRequest, context: RouteContext) {
   try {
+    const { id } = await context.params;
     const data = await req.json();
     const updated = await prisma.category.update({
-      where: { category_id: Number(params.id) },
+      where: { category_id: Number(id) },
       data,
     });
     return NextResponse.json(updated);
@@ -50,9 +52,10 @@ export async function PUT(req: Request, { params }: Params) {
 }
 
 // Delete category
-export async function DELETE(_req: Request, { params }: Params) {
+export async function DELETE(_req: NextRequest, context: RouteContext) {
   try {
-    const categoryId = Number(params.id);
+    const { id } = await context.params;
+    const categoryId = Number(id);
 
     const category = await prisma.category.findUnique({
       where: { category_id: categoryId },

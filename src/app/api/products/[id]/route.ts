@@ -1,13 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { deleteProductCascade } from "@/lib/productCleanup";
 
-type Params = { params: { id: string } };
+type RouteContext = { params: Promise<{ id: string }> };
 
 // Get one product
-export async function GET(_req: Request, { params }: Params) {
+export async function GET(_req: NextRequest, context: RouteContext) {
+  const { id } = await context.params;
   const product = await prisma.product.findUnique({
-    where: { product_id: Number(params.id) },
+    where: { product_id: Number(id) },
     include: {
       category: true,
       reviews: true,
@@ -21,18 +22,20 @@ export async function GET(_req: Request, { params }: Params) {
 }
 
 // Update product
-export async function PUT(req: Request, { params }: Params) {
+export async function PUT(req: NextRequest, context: RouteContext) {
+  const { id } = await context.params;
   const data = await req.json();
   const updated = await prisma.product.update({
-    where: { product_id: Number(params.id) },
+    where: { product_id: Number(id) },
     data,
   });
   return NextResponse.json(updated);
 }
 
 // Delete product
-export async function DELETE(_req: Request, { params }: Params) {
-  const productId = Number(params.id);
+export async function DELETE(_req: NextRequest, context: RouteContext) {
+  const { id } = await context.params;
+  const productId = Number(id);
   try {
     await deleteProductCascade(productId);
     return NextResponse.json({ message: "Product deleted successfully" });

@@ -1,13 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-type Params = { params: { id: string } };
+type RouteContext = { params: Promise<{ id: string }> };
 
 // Get one user
-export async function GET(_req: Request, { params }: Params) {
+export async function GET(_req: NextRequest, context: RouteContext) {
   try {
+    const { id } = await context.params;
     const user = await prisma.user.findUnique({
-      where: { user_id: Number(params.id) },
+      where: { user_id: Number(id) },
       include: {
         orders: true,
         payments: true,
@@ -34,11 +35,12 @@ export async function GET(_req: Request, { params }: Params) {
 }
 
 // Update user info
-export async function PUT(req: Request, { params }: Params) {
+export async function PUT(req: NextRequest, context: RouteContext) {
   try {
+    const { id } = await context.params;
     const data = await req.json();
     const updated = await prisma.user.update({
-      where: { user_id: Number(params.id) },
+      where: { user_id: Number(id) },
       data,
     });
     return NextResponse.json(updated);
@@ -52,10 +54,11 @@ export async function PUT(req: Request, { params }: Params) {
 }
 
 // Delete user
-export async function DELETE(_req: Request, { params }: Params) {
+export async function DELETE(_req: NextRequest, context: RouteContext) {
   try {
+    const { id } = await context.params;
     await prisma.user.delete({
-      where: { user_id: Number(params.id) }
+      where: { user_id: Number(id) }
     });
     return NextResponse.json({ message: "User deleted successfully" });
   } catch (error) {
