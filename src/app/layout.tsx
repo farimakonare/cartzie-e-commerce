@@ -1,5 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
+import { Analytics } from '@vercel/analytics/next'
 import { NotificationProvider } from '@/components/NotificationProvider'
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased min-h-screen bg-gray-50">
         <NotificationProvider>{children}</NotificationProvider>
+        <Analytics />
       </body>
     </html>
   )
