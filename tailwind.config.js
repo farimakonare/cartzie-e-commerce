@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
