@@ -48,7 +48,7 @@ See `src/app/api/*` for the full set of endpoints (products, categories, carts, 
 
 ### Development
 ```bash
-git clone https://github.com/farimakonare/cartzie-e-commerce.git
+git clone https://github.com/farimakonare/ca_10012200004
 cd cartzie-e-commerce
 npm install
 cp .env.example .env   # or create .env and set DATABASE_URL
